@@ -1,0 +1,99 @@
+name: Onboard to MemBrowse
+
+on:
+  workflow_dispatch:
+    inputs:
+      num_commits:
+        description: 'Number of commits to process'
+        required: true
+        default: '100'
+        type: string
+
+jobs:
+  load-targets:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Load target matrix
+        id: set-matrix
+        run: echo "matrix=$(jq -c '.' .github/membrowse-targets.json)" >> $GITHUB_OUTPUT
+
+  onboard:
+    needs: load-targets
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.load-targets.outputs.matrix) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+          cache: pip
+
+      - name: Install packages
+        run: ${{ matrix.setup_cmd }}
+
+      - name: Build HEAD to capture linker info
+        # The onboard action treats `ld` / `linker_vars` as static across all
+        # historical commits, so we only need to capture them once from HEAD
+        # (which is the only commit that contains extra_scripts/membrowse_capture.py
+        # and the matching platformio.ini hook). Historical commits the action
+        # checks out next don't have these, but they reuse the values we extract
+        # here.
+        run: ${{ matrix.build_cmd }}
+
+      - name: Read linker info from capture hook
+        id: info
+        env:
+          MATRIX_ELF: ${{ matrix.elf }}
+        run: |
+          shopt -s nullglob
+          matches=( $MATRIX_ELF )
+          if [ ${#matches[@]} -eq 0 ]; then
+            echo "::error::No ELF matched pattern: $MATRIX_ELF"
+            exit 1
+          fi
+          elf=$(ls -t "${matches[@]}" | head -1)
+          info="$(dirname "$elf")/membrowse.json"
+          if [ ! -f "$info" ]; then
+            echo "::error::membrowse.json not found at $info (capture hook didn't run?)"
+            exit 1
+          fi
+          cat "$info"
+          {
+            echo "ld=$(jq -r '.ld | join(" ")' "$info")"
+            echo "defsyms=$(jq -r '.defsyms | join(" ")' "$info")"
+            echo "map=$(jq -r '.map' "$info")"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run MemBrowse Onboard Action
+        uses: membrowse/membrowse-action/onboard-action@v1
+        with:
+          target_name: ${{ matrix.target_name }}
+          num_commits: ${{ github.event.inputs.num_commits }}
+          build_script: ${{ matrix.build_cmd }}
+          elf: ${{ matrix.elf }}
+          ld: ${{ steps.info.outputs.ld }}
+          # Each historical commit's build embeds the version+short-SHA in the
+          # PROGNAME, so the map (like the ELF) gets a per-commit name. build_cmd
+          # copies both to constant names, so point at the stable map here rather
+          # than the versioned path captured from HEAD.
+          map_file: .pio/build/${{ matrix.target_name }}/firmware.map
+          linker_vars: ${{ steps.info.outputs.defsyms }}
+          skip_sections: .heap
+          binary_search: 'true'
+          api_key: ${{ secrets.MEMBROWSE_API_KEY }}
+          api_url: ${{ vars.MEMBROWSE_API_URL }}

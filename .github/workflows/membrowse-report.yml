@@ -1,0 +1,107 @@
+name: MemBrowse Memory Report
+
+on:
+  pull_request:
+    branches:
+      - master
+      - develop
+    paths-ignore:
+      - "**.md"
+      - version.properties
+  push:
+    branches:
+      - master
+      - develop
+    paths-ignore:
+      - "**.md"
+      - version.properties
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'push' && github.sha || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  load-targets:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Load target matrix
+        id: set-matrix
+        run: echo "matrix=$(jq -c '.' .github/membrowse-targets.json)" >> $GITHUB_OUTPUT
+
+  analyze:
+    needs: load-targets
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.load-targets.outputs.matrix) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+          cache: pip
+
+      - name: Install packages
+        run: ${{ matrix.setup_cmd }}
+
+      - name: Build
+        run: ${{ matrix.build_cmd }}
+
+      - name: Resolve ELF and read linker info
+        id: info
+        env:
+          MATRIX_ELF: ${{ matrix.elf }}
+        run: |
+          # Meshtastic's build renames the ELF to embed version and short SHA
+          # (e.g. firmware-rak3172-2.8.0.8d9ea78.elf), so the target config uses
+          # a glob. The extra_scripts/membrowse_capture.py hook writes the
+          # resolved linker scripts, --defsym pairs, and map path alongside the
+          # ELF at link time.
+          shopt -s nullglob
+          matches=( $MATRIX_ELF )
+          if [ ${#matches[@]} -eq 0 ]; then
+            echo "::error::No ELF matched pattern: $MATRIX_ELF"
+            exit 1
+          fi
+          elf=$(ls -t "${matches[@]}" | head -1)
+          info="$(dirname "$elf")/membrowse.json"
+          if [ ! -f "$info" ]; then
+            echo "::error::membrowse.json not found at $info (capture hook didn't run?)"
+            exit 1
+          fi
+          echo "elf=$elf"
+          cat "$info"
+          {
+            echo "elf=$elf"
+            echo "ld=$(jq -r '.ld | join(" ")' "$info")"
+            echo "defsyms=$(jq -r '.defsyms | join(" ")' "$info")"
+            echo "map=$(jq -r '.map' "$info")"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run MemBrowse analysis
+        uses: membrowse/membrowse-action@v1
+        with:
+          target_name: ${{ matrix.target_name }}
+          elf: ${{ steps.info.outputs.elf }}
+          ld: ${{ steps.info.outputs.ld }}
+          map_file: ${{ steps.info.outputs.map }}
+          linker_vars: ${{ steps.info.outputs.defsyms }}
+          skip_sections: .heap
+          api_key: ${{ secrets.MEMBROWSE_API_KEY }}
+          api_url: ${{ vars.MEMBROWSE_API_URL }}
+          verbose: INFO
+          # Uncomment to allow CI to pass even when memory budgets are exceeded
+          # dont_fail_on_alerts: true

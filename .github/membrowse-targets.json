@@ -1,0 +1,56 @@
+[
+  {
+    "target_name": "tlora-c6",
+    "setup_cmd": "sudo apt-get update && sudo apt-get install -y python3-pip && pip install -U platformio",
+    "build_cmd": "pio run -e tlora-c6 && cp .pio/build/tlora-c6/firmware-tlora-c6-*.elf .pio/build/tlora-c6/firmware.elf && { cp .pio/build/tlora-c6/firmware-tlora-c6-*.map .pio/build/tlora-c6/firmware.map 2>/dev/null || cp .pio/build/output.map .pio/build/tlora-c6/firmware.map 2>/dev/null || true; }",
+    "elf": ".pio/build/tlora-c6/firmware.elf"
+  },
+  {
+    "target_name": "heltec-vision-master-e213-inkhud",
+    "setup_cmd": "sudo apt-get update && sudo apt-get install -y python3-pip && pip install -U platformio",
+    "build_cmd": "pio run -e heltec-vision-master-e213-inkhud && cp .pio/build/heltec-vision-master-e213-inkhud/firmware-heltec-vision-master-e213-inkhud-*.elf .pio/build/heltec-vision-master-e213-inkhud/firmware.elf && { cp .pio/build/heltec-vision-master-e213-inkhud/firmware-heltec-vision-master-e213-inkhud-*.map .pio/build/heltec-vision-master-e213-inkhud/firmware.map 2>/dev/null || cp .pio/build/output.map .pio/build/heltec-vision-master-e213-inkhud/firmware.map 2>/dev/null || true; }",
+    "elf": ".pio/build/heltec-vision-master-e213-inkhud/firmware.elf"
+  },
+  {
+    "target_name": "t-deck-tft",
+    "setup_cmd": "sudo apt-get update && sudo apt-get install -y python3-pip && pip install -U platformio",
+    "build_cmd": "pio run -e t-deck-tft && cp .pio/build/t-deck-tft/firmware-t-deck-tft-*.elf .pio/build/t-deck-tft/firmware.elf && { cp .pio/build/t-deck-tft/firmware-t-deck-tft-*.map .pio/build/t-deck-tft/firmware.map 2>/dev/null || cp .pio/build/output.map .pio/build/t-deck-tft/firmware.map 2>/dev/null || true; }",
+    "elf": ".pio/build/t-deck-tft/firmware.elf"
+  },
+  {
+    "target_name": "t-eth-elite",
+    "setup_cmd": "sudo apt-get update && sudo apt-get install -y python3-pip && pip install -U platformio",
+    "build_cmd": "pio run -e t-eth-elite && cp .pio/build/t-eth-elite/firmware-t-eth-elite-*.elf .pio/build/t-eth-elite/firmware.elf && { cp .pio/build/t-eth-elite/firmware-t-eth-elite-*.map .pio/build/t-eth-elite/firmware.map 2>/dev/null || cp .pio/build/output.map .pio/build/t-eth-elite/firmware.map 2>/dev/null || true; }",
+    "elf": ".pio/build/t-eth-elite/firmware.elf"
+  },
+  {
+    "target_name": "t-echo-inkhud",
+    "setup_cmd": "sudo apt-get update && sudo apt-get install -y python3-pip && pip install -U platformio",
+    "build_cmd": "pio run -e t-echo-inkhud && cp .pio/build/t-echo-inkhud/firmware-t-echo-inkhud-*.elf .pio/build/t-echo-inkhud/firmware.elf && { cp .pio/build/t-echo-inkhud/firmware-t-echo-inkhud-*.map .pio/build/t-echo-inkhud/firmware.map 2>/dev/null || cp .pio/build/output.map .pio/build/t-echo-inkhud/firmware.map 2>/dev/null || true; }",
+    "elf": ".pio/build/t-echo-inkhud/firmware.elf"
+  },
+  {
+    "target_name": "pico2",
+    "setup_cmd": "sudo apt-get update && sudo apt-get install -y python3-pip && pip install -U platformio",
+    "build_cmd": "pio run -e pico2 && cp .pio/build/pico2/firmware-pico2-*.elf .pio/build/pico2/firmware.elf && { cp .pio/build/pico2/firmware-pico2-*.map .pio/build/pico2/firmware.map 2>/dev/null || cp .pio/build/output.map .pio/build/pico2/firmware.map 2>/dev/null || true; }",
+    "elf": ".pio/build/pico2/firmware.elf"
+  },
+  {
+    "target_name": "pico2w",
+    "setup_cmd": "sudo apt-get update && sudo apt-get install -y python3-pip && pip install -U platformio",
+    "build_cmd": "pio run -e pico2w && cp .pio/build/pico2w/firmware-pico2w-*.elf .pio/build/pico2w/firmware.elf && { cp .pio/build/pico2w/firmware-pico2w-*.map .pio/build/pico2w/firmware.map 2>/dev/null || cp .pio/build/output.map .pio/build/pico2w/firmware.map 2>/dev/null || true; }",
+    "elf": ".pio/build/pico2w/firmware.elf"
+  },
+  {
+    "target_name": "rak3172",
+    "setup_cmd": "sudo apt-get update && sudo apt-get install -y python3-pip && pip install -U platformio",
+    "build_cmd": "pio run -e rak3172 && cp .pio/build/rak3172/firmware-rak3172-*.elf .pio/build/rak3172/firmware.elf && { cp .pio/build/rak3172/firmware-rak3172-*.map .pio/build/rak3172/firmware.map 2>/dev/null || cp .pio/build/output.map .pio/build/rak3172/firmware.map 2>/dev/null || true; }",
+    "elf": ".pio/build/rak3172/firmware.elf"
+  },
+  {
+    "target_name": "wio-e5",
+    "setup_cmd": "sudo apt-get update && sudo apt-get install -y python3-pip && pip install -U platformio",
+    "build_cmd": "pio run -e wio-e5 && cp .pio/build/wio-e5/firmware-wio-e5-*.elf .pio/build/wio-e5/firmware.elf && { cp .pio/build/wio-e5/firmware-wio-e5-*.map .pio/build/wio-e5/firmware.map 2>/dev/null || cp .pio/build/output.map .pio/build/wio-e5/firmware.map 2>/dev/null || true; }",
+    "elf": ".pio/build/wio-e5/firmware.elf"
+  }
+]
