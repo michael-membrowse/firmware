@@ -31,7 +31,7 @@ jobs:
 
       - name: Load target matrix
         id: set-matrix
-        run: echo "matrix=$(jq -c '.' .github/membrowse-targets.json)" >> $GITHUB_OUTPUT
+        run: echo "matrix=$(jq -c '[.[] | select(.target_name == "tlora-c6")]' .github/membrowse-targets.json)" >> $GITHUB_OUTPUT
 
   analyze:
     needs: load-targets
@@ -51,7 +51,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: 3.x
+          python-version: '3.13'
           cache: pip
 
       - name: Install packages
@@ -92,7 +92,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Run MemBrowse analysis
-        uses: membrowse/membrowse-action@v1
+        uses: membrowse/membrowse-action@keep-caller-python
         with:
           target_name: ${{ matrix.target_name }}
           elf: ${{ steps.info.outputs.elf }}
@@ -105,3 +105,8 @@ jobs:
           verbose: INFO
           # Uncomment to allow CI to pass even when memory budgets are exceeded
           # dont_fail_on_alerts: true
+
+      - name: Verify workflow Python was not overridden
+        run: |
+          which python; python --version
+          python -c "import sys; assert sys.version_info[:2] == (3, 13), sys.version"

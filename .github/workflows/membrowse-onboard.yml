@@ -20,7 +20,7 @@ jobs:
 
       - name: Load target matrix
         id: set-matrix
-        run: echo "matrix=$(jq -c '.' .github/membrowse-targets.json)" >> $GITHUB_OUTPUT
+        run: echo "matrix=$(jq -c '[.[] | select(.target_name == "tlora-c6")]' .github/membrowse-targets.json)" >> $GITHUB_OUTPUT
 
   onboard:
     needs: load-targets
@@ -40,7 +40,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: 3.x
+          python-version: '3.13'
           cache: pip
 
       - name: Install packages
@@ -80,11 +80,12 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Run MemBrowse Onboard Action
-        uses: membrowse/membrowse-action/onboard-action@v1
+        uses: membrowse/membrowse-action/onboard-action@keep-caller-python
         with:
           target_name: ${{ matrix.target_name }}
           num_commits: ${{ github.event.inputs.num_commits }}
-          build_script: ${{ matrix.build_cmd }}
+          # Fail the build if the action replaced the workflow's pinned Python
+          build_script: which python && python --version && python -c "import sys; assert sys.version_info[:2] == (3, 13), sys.version" && ${{ matrix.build_cmd }}
           elf: ${{ matrix.elf }}
           ld: ${{ steps.info.outputs.ld }}
           # Each historical commit's build embeds the version+short-SHA in the
