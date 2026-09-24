@@ -1,7 +1,7 @@
 [
   {
     "target_name": "tlora-c6",
-    "setup_cmd": "sudo apt-get update && sudo apt-get install -y python3-pip && pip install -U platformio",
+    "setup_cmd": "sudo apt-get update && sudo apt-get install -y python3-pip && pip install platformio==6.1.19",
     "build_cmd": "pio run -e tlora-c6 && cp .pio/build/tlora-c6/firmware-tlora-c6-*.elf .pio/build/tlora-c6/firmware.elf && { cp .pio/build/tlora-c6/firmware-tlora-c6-*.map .pio/build/tlora-c6/firmware.map 2>/dev/null || cp .pio/build/output.map .pio/build/tlora-c6/firmware.map 2>/dev/null || true; }",
     "elf": ".pio/build/tlora-c6/firmware.elf"
   },
