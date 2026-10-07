@@ -94,7 +94,7 @@ jobs:
           # PRs and (for now) merge_group builds use the narrowed --level pr board
           # subset. Full-matrix builds run on push / schedule / workflow_dispatch.
           # TEST BRANCH: three boards only, to exercise MemBrowse chain bridging on the test env.
-          TARGETS='[{"board":"rak4631","platform":"nrf52840"},{"board":"heltec-v3","platform":"esp32s3"}]'
+          TARGETS='[{"board":"rak4631","platform":"nrf52840"},{"board":"heltec-v3","platform":"esp32s3"},{"board":"picow","platform":"rp2040"}]'
           echo "Name: $GITHUB_REF_NAME Base: $GITHUB_BASE_REF Ref: $GITHUB_REF"
           echo "all=$TARGETS" >> $GITHUB_OUTPUT
           echo "$TARGETS" >> $GITHUB_STEP_SUMMARY
