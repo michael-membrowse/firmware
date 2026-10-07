@@ -65,8 +65,9 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Run MemBrowse analysis
-        uses: membrowse/membrowse-action@v1
+        uses: membrowse/membrowse-action@commit-ancestry
         with:
+          api_url: https://core-test-dot-membrowse.uc.r.appspot.com
           target_name: ${{ inputs.pio_env }}
           elf: ${{ steps.files.outputs.elf }}
           ld: ${{ steps.files.outputs.ld }}

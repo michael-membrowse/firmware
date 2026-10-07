@@ -142,7 +142,7 @@ jobs:
   # nightly and release runs rebuild commits MemBrowse already has.
   membrowse:
     needs: pio-build
-    if: github.repository == 'meshtastic/firmware' && contains(fromJSON('["push", "pull_request"]'), github.event_name)
+    if: github.repository == 'michael-membrowse/firmware' && contains(fromJSON('["push", "pull_request"]'), github.event_name)
     uses: ./.github/workflows/membrowse_report.yml
     with:
       version: ${{ inputs.version }}
